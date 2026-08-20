@@ -180,6 +180,30 @@ workaround, and why YouMod's pages all start with a heading) without passing
 Checkmark pickers are the intended use of `selectedItemIndex` and pass through
 untouched.
 
+### How subtitles are pinned
+
+`Features/Subtitles.xm` hooks exactly one getter,
+`-[MLCaptionConfigImpl captionVisibility]`. That class is where YouTube keeps
+the caption toggle you last made while watching (persisted as
+`user.persistent_user_caption_visibility`), and the per-video loader reads it
+back in `-[MLInnerTubeCaptionController loadUserCaptionsWithSelectionReason:]`
+and `-loadUserCaptionsBasedOnPastUserSelectionWithSelectionReason:`. Its values
+are `0` unset (defer to the iOS *Closed Captions + SDH* switch), `1` shown,
+`2` hidden.
+
+The CC button in the player goes through
+`-[MLInnerTubeCaptionController setSelectedCaptionTrack:selectionReason:]`,
+which loads the track directly and never reads the visibility back — so forcing
+the getter pins what each new video starts with without breaking the toggle for
+the video already playing.
+
+Two paths still win over the setting, by design: a video whose player response
+declares `CaptionsInitialState…Required`, and a forced caption track. Those are
+the cases where the publisher requires captions.
+
+PoomSmart's YouRememberCaption is *not* usable here — it stopped working at
+YouTube 20.16.7, and `respectDeviceCaptionSetting` no longer exists in 21.32.4.
+
 ## Releasing
 
 Both workflows are manual (`workflow_dispatch`) and create **draft** releases

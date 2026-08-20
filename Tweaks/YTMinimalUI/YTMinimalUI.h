@@ -28,6 +28,11 @@
 // Shorts
 #define kShowShortsShelf @"ShowShortsShelf"
 
+// Subtitles. Off by default, so YouTube keeps its own behaviour until asked:
+// kForceSubtitles pins the state, kSubtitlesOn says which state to pin it to.
+#define kForceSubtitles @"ForceSubtitles"
+#define kSubtitlesOn @"SubtitlesOn"
+
 static inline NSString *YTMinimalUIKey(NSString *name) {
     return [kYTMinimalUIPrefix stringByAppendingString:name];
 }
@@ -62,4 +67,5 @@ void YTMinimalUIInitAppearance(void);
 void YTMinimalUIInitNavigationBar(void);
 void YTMinimalUIInitTabBar(void);
 void YTMinimalUIInitShorts(void);
+void YTMinimalUIInitSubtitles(void);
 void YTMinimalUIInitSettings(void);

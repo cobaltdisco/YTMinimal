@@ -15,7 +15,7 @@ Minimal YouTube tweak bundle with optional tweaks. Perfect for YouTube Premium s
 - **[DontEatMyContent](https://github.com/therealFoxster/DontEatMyContent)** - stops the notch/Dynamic Island cutting into 2:1 videos.
 - **[YouChooseQuality](https://github.com/PoomSmart/YouChooseQuality)** - pins the starting video quality per connection type.
 - **[YouTube Native Share](https://github.com/jkhsjdhjs/youtube-native-share)** - shares via the system sheet, without YouTube's tracking parameter.
-- **YTMinimalUI** - written for this repo: OLED dark mode, navigation bar and tab bar trimming, hiding Shorts in the feed. See [its README](Tweaks/YTMinimalUI/README.md).
+- **YTMinimalUI** - written for this repo: OLED dark mode, navigation bar and tab bar trimming, hiding Shorts in the feed, pinning subtitles on or off. See [its README](Tweaks/YTMinimalUI/README.md).
 
 ### Settings
 

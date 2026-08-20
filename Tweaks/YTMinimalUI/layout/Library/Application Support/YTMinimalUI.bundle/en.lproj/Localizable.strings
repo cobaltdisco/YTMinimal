@@ -4,6 +4,7 @@
 "TAB_BAR" = "Tab bar";
 "SHORTS" = "Shorts";
 "VIDEO_PLAY" = "Video play";
+"SUBTITLES" = "Subtitles";
 "ABOUT" = "About";
 
 /* Appearance */
@@ -31,3 +32,8 @@
 
 /* Shorts */
 "SHOW_SHORTS_SHELF" = "Show Shorts in the feed";
+
+/* Subtitles */
+"FORCE_SUBTITLES" = "Always use my setting";
+"FORCE_SUBTITLES_DESC" = "Turning subtitles on or off while watching no longer carries over to the next video";
+"SHOW_SUBTITLES" = "Show subtitles";

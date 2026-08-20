@@ -15,6 +15,7 @@ this bundle shows in YouTube's own settings screen.
 | `Features/NavigationBar.xm` | Hiding top bar buttons, including the Messages button |
 | `Features/TabBar.xm` | Which tabs the bottom bar shows, labels, launch tab |
 | `Features/Shorts.xm` | Dropping the Shorts shelf from the feed |
+| `Features/Subtitles.xm` | Pinning captions on or off so YouTube stops remembering the last toggle |
 | `Features/Settings.xm` | The `YTMinimal` settings group and its six categories |
 | `layout/…/YTMinimalUI.bundle` | `en` and `zh-Hans` strings |
 
@@ -64,5 +65,5 @@ that file and must be re-checked when the submodules are bumped.
 
 See CLAUDE.md for how the group/category model works. In short: we own a group
 called `YTMinimal` placed above Account, containing Appearance, Navigation bar,
-Tab bar, Shorts, Video play and About. Video play holds one row per third-party
-tweak, each opening that tweak's own settings.
+Tab bar, Shorts, Video play and About. Video play holds Subtitles plus one row
+per third-party tweak, each opening that tweak's own settings.

@@ -13,6 +13,7 @@
         YTMinimalUIInitNavigationBar();
         YTMinimalUIInitTabBar();
         YTMinimalUIInitShorts();
+        YTMinimalUIInitSubtitles();
         YTMinimalUIInitSettings();
     }
 }

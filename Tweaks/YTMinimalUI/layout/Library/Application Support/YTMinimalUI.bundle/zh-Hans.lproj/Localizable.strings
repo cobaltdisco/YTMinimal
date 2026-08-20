@@ -4,6 +4,7 @@
 "TAB_BAR" = "标签栏";
 "SHORTS" = "Shorts";
 "VIDEO_PLAY" = "视频播放";
+"SUBTITLES" = "字幕";
 "ABOUT" = "关于";
 
 /* Appearance */
@@ -31,3 +32,8 @@
 
 /* Shorts */
 "SHOW_SHORTS_SHELF" = "显示首页信息流中的 Shorts";
+
+/* Subtitles */
+"FORCE_SUBTITLES" = "始终使用我的设置";
+"FORCE_SUBTITLES_DESC" = "观看时临时开关字幕，不再带到下一个视频";
+"SHOW_SUBTITLES" = "显示字幕";

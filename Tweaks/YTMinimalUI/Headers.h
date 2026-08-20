@@ -73,6 +73,12 @@
 + (NSArray *)orderedGroups;
 @end
 
+// Where YouTube remembers whether you last had captions on. Backed by
+// YTUserDefaults' "user.persistent_user_caption_visibility".
+@interface MLCaptionConfigImpl : NSObject
+@property (nonatomic) long long captionVisibility;
+@end
+
 @interface YTSettingsSectionItemManager (YTMinimalUI)
 - (NSMutableArray <YTSettingsSectionItem *> *)ytMinimalUITweaksPageRows;
 - (void)updateYTMinimalUISectionWithEntry:(id)entry;

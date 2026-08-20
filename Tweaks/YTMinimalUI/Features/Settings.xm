@@ -402,6 +402,16 @@ static void PresentSponsorBlockSettings(void) {
     [rows addObject:page(YTMLOC(@"VIDEO_PLAY"), ^NSArray <YTSettingsSectionItem *> *{
         // Each row is only offered when that tweak is actually in the build.
         NSMutableArray <YTSettingsSectionItem *> *videoRows = [NSMutableArray array];
+        [videoRows addObject:[%c(YTSettingsSectionItem) itemWithTitle:YTMLOC(@"SUBTITLES")
+            accessibilityIdentifier:nil
+            detailTextBlock:nil
+            selectBlock:^BOOL (YTSettingsCell *cell, NSUInteger index) {
+                YTMPushPage(settings, responder, YTMLOC(@"SUBTITLES"), @[
+                    YTMSwitchRow(YTMLOC(@"FORCE_SUBTITLES"), YTMLOC(@"FORCE_SUBTITLES_DESC"), kForceSubtitles, NO),
+                    YTMSwitchRow(YTMLOC(@"SHOW_SUBTITLES"), nil, kSubtitlesOn, NO),
+                ]);
+                return YES;
+            }]];
         if (YouChooseQualityBundle()) {
             [videoRows addObject:[%c(YTSettingsSectionItem) itemWithTitle:@"YouChooseQuality"
                 accessibilityIdentifier:nil
