@@ -12,8 +12,14 @@ Minimal YouTube tweak bundle with optional tweaks. Perfect for YouTube Premium s
 
 ### Optional tweaks (enabled by default, configurable in Settings)
 - **[iSponsorBlock](https://github.com/JeffreyCA/iSponsorBlock)** - skips sponsor segments via the [SponsorBlock API](https://sponsor.ajay.app).
-- **[Return YouTube Dislikes](https://github.com/PoomSmart/Return-YouTube-Dislikes)** - restores the dislike count.
-- **[YouSpeed](https://github.com/PoomSmart/YouSpeed)** - adds a streaming speed overlay to the video player.
+- **[DontEatMyContent](https://github.com/therealFoxster/DontEatMyContent)** - stops the notch/Dynamic Island cutting into 2:1 videos.
+- **[YouChooseQuality](https://github.com/PoomSmart/YouChooseQuality)** - pins the starting video quality per connection type.
+- **[YouTube Native Share](https://github.com/jkhsjdhjs/youtube-native-share)** - shares via the system sheet, without YouTube's tracking parameter.
+- **YTMinimalUI** - written for this repo: OLED dark mode, navigation bar and tab bar trimming, hiding Shorts in the feed. See [its README](Tweaks/YTMinimalUI/README.md).
+
+### Settings
+
+Everything above is configured from a single **YTMinimal** section at the top of YouTube's own settings screen, above *Account*. Available in English and Simplified Chinese, following the app's language.
 
 ## Install
 
@@ -49,7 +55,7 @@ Use the `.ipa` from a release (produced by the `Build and release tweaked IPA` w
     <li>When the build finishes, a <strong>draft release</strong> with the <code>.ipa</code> attached is created under the <strong>Releases</strong> section of your fork. Edit and publish it from there.</li>
   </ol>
 
-  > **Tip:** Each optional tweak (iSponsorBlock, Return YouTube Dislikes, YouSpeed) can be toggled on/off in the workflow inputs. All are enabled by default.
+  > **Tip:** Each optional tweak (iSponsorBlock, DontEatMyContent, YouChooseQuality, YouTube Native Share, YTMinimalUI) can be toggled on/off in the workflow inputs. All are enabled by default.
 </details>
 
 <details>
@@ -62,20 +68,28 @@ Use the `.ipa` from a release (produced by the `Build and release tweaked IPA` w
     <li>When the build finishes, a <strong>draft release</strong> with the <code>.deb</code> attached is created under the <strong>Releases</strong> section of your fork. Edit and publish it from there.</li>
   </ol>
 
-  > **Tip:** Each optional tweak (iSponsorBlock, Return YouTube Dislikes, YouSpeed) can be toggled on/off in the workflow inputs. All are enabled by default.
+  > **Tip:** Each optional tweak (iSponsorBlock, DontEatMyContent, YouChooseQuality, YouTube Native Share, YTMinimalUI) can be toggled on/off in the workflow inputs. All are enabled by default.
 </details>
 
 ## Building locally
 
 ```bash
-make package FINALPACKAGE=1
+./scripts/build.sh
 ```
 
 To disable specific tweaks, pass `0`:
 
 ```bash
-make package FINALPACKAGE=1 ENABLE_ISPONSORBLOCK=0 ENABLE_RYD=0 ENABLE_YOUSPEED=0
+./scripts/build.sh ENABLE_ISPONSORBLOCK=0 ENABLE_YOUCHOOSEQUALITY=0
 ```
+
+To build a sideloadable IPA straight from a decrypted YouTube IPA:
+
+```bash
+./scripts/build-ipa.sh ~/Downloads/YouTube-decrypted.ipa
+```
+
+Requirements and the Theos gotchas involved are in [CLAUDE.md](CLAUDE.md).
 
 ## Casting not working?
 

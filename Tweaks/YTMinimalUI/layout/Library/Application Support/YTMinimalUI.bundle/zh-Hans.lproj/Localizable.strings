@@ -1,0 +1,33 @@
+/* Page titles */
+"APPEARANCE" = "外观";
+"NAVIGATION_BAR" = "导航栏";
+"TAB_BAR" = "标签栏";
+"SHORTS" = "Shorts";
+"VIDEO_PLAY" = "视频播放";
+"ABOUT" = "关于";
+
+/* Appearance */
+"OLED_DARK_MODE" = "OLED 纯黑主题";
+"OLED_DARK_MODE_DESC" = "深色模式下把背景改为纯黑";
+
+/* Navigation bar */
+"SHOW_MESSAGES" = "显示「消息」按钮";
+"SHOW_NOTIFICATIONS" = "显示「通知」按钮";
+"SHOW_CAST" = "显示「投屏」按钮";
+"SHOW_VOICE_SEARCH" = "显示「语音搜索」按钮";
+
+/* Tab bar */
+"SHOW_HOME_TAB" = "显示「首页」";
+"SHOW_SHORTS_TAB" = "显示「Shorts」";
+"SHOW_SUBSCRIPTIONS_TAB" = "显示「订阅」";
+"SHOW_CREATE_BUTTON" = "显示「创建」按钮";
+"SHOW_TAB_LABELS" = "显示标签文字";
+"DEFAULT_TAB" = "启动时默认标签";
+"DEFAULT_TAB_DESC" = "打开 YouTube 时停在哪个标签";
+"TAB_HOME" = "首页";
+"TAB_SHORTS" = "Shorts";
+"TAB_SUBSCRIPTIONS" = "订阅";
+"TAB_YOU" = "我";
+
+/* Shorts */
+"SHOW_SHORTS_SHELF" = "显示首页信息流中的 Shorts";

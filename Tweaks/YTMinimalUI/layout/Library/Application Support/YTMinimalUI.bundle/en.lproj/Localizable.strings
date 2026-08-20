@@ -1,0 +1,33 @@
+/* Page titles — sentence case, matching YouTube's own settings */
+"APPEARANCE" = "Appearance";
+"NAVIGATION_BAR" = "Navigation bar";
+"TAB_BAR" = "Tab bar";
+"SHORTS" = "Shorts";
+"VIDEO_PLAY" = "Video play";
+"ABOUT" = "About";
+
+/* Appearance */
+"OLED_DARK_MODE" = "OLED dark mode";
+"OLED_DARK_MODE_DESC" = "Use true black backgrounds in dark mode";
+
+/* Navigation bar */
+"SHOW_MESSAGES" = "Show Messages button";
+"SHOW_NOTIFICATIONS" = "Show Notifications button";
+"SHOW_CAST" = "Show Cast button";
+"SHOW_VOICE_SEARCH" = "Show voice search button";
+
+/* Tab bar */
+"SHOW_HOME_TAB" = "Show Home tab";
+"SHOW_SHORTS_TAB" = "Show Shorts tab";
+"SHOW_SUBSCRIPTIONS_TAB" = "Show Subscriptions tab";
+"SHOW_CREATE_BUTTON" = "Show Create button";
+"SHOW_TAB_LABELS" = "Show tab labels";
+"DEFAULT_TAB" = "Tab on launch";
+"DEFAULT_TAB_DESC" = "Which tab YouTube opens on";
+"TAB_HOME" = "Home";
+"TAB_SHORTS" = "Shorts";
+"TAB_SUBSCRIPTIONS" = "Subscriptions";
+"TAB_YOU" = "You";
+
+/* Shorts */
+"SHOW_SHORTS_SHELF" = "Show Shorts in the feed";

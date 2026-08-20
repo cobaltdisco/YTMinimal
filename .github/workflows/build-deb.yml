@@ -12,13 +12,23 @@ on:
         required: true
         type: boolean
         default: true
-      enable_ryd:
-        description: 'Include Return YouTube Dislikes'
+      enable_donteatmycontent:
+        description: 'Include DontEatMyContent'
         required: true
         type: boolean
         default: true
-      enable_youspeed:
-        description: 'Include YouSpeed'
+      enable_youchoosequality:
+        description: 'Include YouChooseQuality'
+        required: true
+        type: boolean
+        default: true
+      enable_nativeshare:
+        description: 'Include YouTube Native Share'
+        required: true
+        type: boolean
+        default: true
+      enable_ytminimalui:
+        description: 'Include YTMinimalUI (our own interface tweaks)'
         required: true
         type: boolean
         default: true
@@ -77,7 +87,7 @@ jobs:
           mv iPhoneOS16.5.sdk "$GITHUB_WORKSPACE/theos/sdks/"
 
       - name: Build package
-        run: make package FINALPACKAGE=1 ENABLE_ISPONSORBLOCK=${{ inputs.enable_isponsorblock && '1' || '0' }} ENABLE_RYD=${{ inputs.enable_ryd && '1' || '0' }} ENABLE_YOUSPEED=${{ inputs.enable_youspeed && '1' || '0' }}
+        run: make package FINALPACKAGE=1 ENABLE_ISPONSORBLOCK=${{ inputs.enable_isponsorblock && '1' || '0' }} ENABLE_DONTEATMYCONTENT=${{ inputs.enable_donteatmycontent && '1' || '0' }} ENABLE_YOUCHOOSEQUALITY=${{ inputs.enable_youchoosequality && '1' || '0' }} ENABLE_NATIVESHARE=${{ inputs.enable_nativeshare && '1' || '0' }} ENABLE_YTMINIMALUI=${{ inputs.enable_ytminimalui && '1' || '0' }}
         env:
           THEOS: ${{ github.workspace }}/theos
 

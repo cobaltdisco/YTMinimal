@@ -7,3 +7,7 @@ obj
 .DS_Store
 
 *.xcworkspace
+
+# Local build output
+packages/
+*.ipa
