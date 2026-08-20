@@ -28,7 +28,7 @@ on:
         type: boolean
         default: true
       enable_ytminimalui:
-        description: 'Include YTMinimalUI (our own interface tweaks)'
+        description: 'Include YTMinimalUI (Shorts/Nav/Tab)'
         required: true
         type: boolean
         default: true
