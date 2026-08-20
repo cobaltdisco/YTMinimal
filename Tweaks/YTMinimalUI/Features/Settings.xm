@@ -1,6 +1,7 @@
 #import "../YTMinimalUI.h"
 #import "../Headers.h"
 #import <dlfcn.h>
+#import <objc/runtime.h>
 
 // YouTube's settings screen is two levels deep: `orderedGroups` lists group
 // types, each group holds ordered categories, and a category is one titled
@@ -155,6 +156,9 @@ static YTSettingsSectionItem *YTMForeignSwitchRow(NSString *title, NSString *des
         settingItemId:0];
 }
 
+// Marks the pages we push, so the hook below knows which ones to refresh.
+static const void *kYTMinimalUIPageKey = &kYTMinimalUIPageKey;
+
 static void YTMPushPage(YTSettingsViewController *settings, id responder, NSString *title, NSArray <YTSettingsSectionItem *> *rows) {
     // YTSettingsPickerViewController doubles as a generic sub-page when it is
     // handed non-checkmark rows. It still forwards selectedItemIndex to the
@@ -167,6 +171,7 @@ static void YTMPushPage(YTSettingsViewController *settings, id responder, NSStri
         rows:rows
         selectedItemIndex:0
         parentResponder:responder];
+    objc_setAssociatedObject(page, kYTMinimalUIPageKey, @YES, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     [settings pushViewController:page];
 }
 
@@ -198,7 +203,6 @@ static NSArray <YTSettingsSectionItem *> *YouChooseQualityRows(id responder, YTS
                     [choices addObject:[%c(YTSettingsSectionItem) checkmarkItemWithTitle:YCQQualityLabel(quality)
                         selectBlock:^BOOL (YTSettingsCell *innerCell, NSUInteger innerIndex) {
                             [defaults setInteger:quality forKey:YCQQualityKey(scenario)];
-                            [settings reloadData];
                             return YES;
                         }]];
                 }
@@ -226,11 +230,6 @@ static void DontEatMyContentSetConstant(float value) {
     if (constant) *constant = value;
 }
 
-static void DontEatMyContentShowSnackBar(NSString *text) {
-    void (*showSnackBar)(NSString *) = (void (*)(NSString *))dlsym(RTLD_DEFAULT, "DEMC_showSnackBar");
-    if (showSnackBar) showSnackBar(text);
-}
-
 static NSArray <YTSettingsSectionItem *> *DontEatMyContentRows(id responder, YTSettingsViewController *settings) {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSMutableArray <YTSettingsSectionItem *> *rows = [NSMutableArray array];
@@ -244,7 +243,6 @@ static NSArray <YTSettingsSectionItem *> *DontEatMyContentRows(id responder, YTS
         switchOn:[defaults boolForKey:kDEMCEnabled]
         switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {
             [defaults setBool:enabled forKey:kDEMCEnabled];
-            DontEatMyContentShowSnackBar(DEMCLOC(@"CHANGES_SAVED"));
             return YES;
         }
         settingItemId:0]];
@@ -272,8 +270,6 @@ static NSArray <YTSettingsSectionItem *> *DontEatMyContentRows(id responder, YTS
                 [choices addObject:[%c(YTSettingsSectionItem) checkmarkItemWithTitle:title
                     selectBlock:^BOOL (YTSettingsCell *innerCell, NSUInteger innerIndex) {
                         DontEatMyContentSetConstant(choice);
-                        [settings reloadData];
-                        DontEatMyContentShowSnackBar(DEMCLOC(@"CHANGES_SAVED_DISMISS_VIDEO"));
                         return YES;
                     }]];
             }
@@ -503,6 +499,21 @@ static void PresentSponsorBlockSettings(void) {
     NSArray <YTSettingsSectionItem *> *items = self.items;
     if (selectedItem < items.count && items[selectedItem].hasSwitch) return;
     %orig;
+}
+
+%end
+
+// A row's detail text comes from a block that reads the preference live, but the
+// page only draws it when a cell is built. Picking a value in a checkmark
+// picker pops back to a page that is still showing the old one, so refresh our
+// own pages every time they come into view.
+%hook YTSettingsPickerViewController
+
+- (void)viewWillAppear:(BOOL)animated {
+    %orig;
+    if (!objc_getAssociatedObject(self, kYTMinimalUIPageKey)) return;
+    YTCollectionViewController *collection = [self valueForKey:@"_collectionViewController"];
+    [collection reloadData];
 }
 
 %end

@@ -11,6 +11,7 @@
 #import <YouTubeHeader/YTPivotBarItemView.h>
 #import <YouTubeHeader/YTSettingsCell.h>
 #import <YouTubeHeader/YTSettingsGroupData.h>
+#import <YouTubeHeader/YTCollectionViewController.h>
 #import <YouTubeHeader/YTSettingsPickerViewController.h>
 #import <YouTubeHeader/YTSettingsSectionItem.h>
 #import <YouTubeHeader/YTSettingsSectionItemManager.h>
@@ -56,6 +57,12 @@
 
 @interface YTPivotBarViewController : UIViewController
 - (void)selectItemWithPivotIdentifier:(NSString *)identifier;
+@end
+
+// A settings page keeps its rows in a collection view controller; reloading it
+// is what re-runs every row's detailTextBlock.
+@interface YTCollectionViewController (YTMinimalUI)
+- (void)reloadData;
 @end
 
 // The picker's selectedItemIndex is handed straight to this.
