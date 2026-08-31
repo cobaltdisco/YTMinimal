@@ -25,6 +25,9 @@
 #import <YouTubeHeader/YTIHorizontalListRenderer.h>
 #import <YouTubeHeader/YTIHorizontalListSupportedRenderers.h>
 #import <YouTubeHeader/YTIElementRenderer.h>
+#import <YouTubeHeader/_ASDisplayView.h>
+#import <YouTubeHeader/ASCollectionView.h>
+#import <YouTubeHeader/YTActionSheetDialogViewController.h>
 
 // YTColor.h in the submodule stops at black3.
 @interface YTColor (YTMinimalUI)
@@ -39,6 +42,54 @@
 @property (nonatomic, strong, readonly) UIView *searchButton;
 @property (nonatomic, strong, readonly) UIView *voiceSearchButton;
 @property (nonatomic, strong, readonly) UIView *connectionsInboxButton;
+@end
+
+// Which screen an asynchronously-drawn view ended up on. AsyncDisplayKit views
+// are reused across the app, so the identifier alone is often not enough to
+// tell a sheet from the feed behind it.
+@interface UIView (YTMinimalUI)
+- (UIViewController *)_viewControllerForAncestor;
+@end
+
+// Sheets, dialogs and panels. YouTube paints these itself rather than through
+// the colour palette, so the OLED pass has to reach them by class.
+@interface YTBottomSheetController : UIViewController
+@end
+
+@interface GOOModalWindowViewController : UIViewController
+@end
+
+@interface YTContextualSheetView : UIView
+@end
+
+@interface YTContextualWrapView : UIView
+@end
+
+@interface YTEngagementPanelView : UIView
+- (void)setFooterView:(UIView *)view;
+@end
+
+// The ripple drawn under a dialog button.
+@interface MDCInkView : UIView
+@end
+
+@interface GOODialogActionMDCButton : UIButton
+@end
+
+// One ELM element hosted on its own. Its `_renderer` names the template, which
+// is the only handle on what the element actually is.
+@interface YTELMViewController : UIViewController
+@end
+
+// Live chat on a stream. The immersive collection view is the variant drawn
+// over the video, where a transparent background is deliberate.
+@interface YCHAsyncLiveChatCollectionViewController : UIViewController
+@end
+
+@interface YCHAsyncLiveChatImmersiveCollectionView : UICollectionView
+@end
+
+@interface YTStartupAnimationViewController : UIViewController
 @end
 
 // The top bar's logo, and the container the doodle logo is drawn into.

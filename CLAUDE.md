@@ -180,6 +180,30 @@ workaround, and why YouMod's pages all start with a heading) without passing
 Checkmark pickers are the intended use of `selectedItemIndex` and pass through
 untouched.
 
+### How the OLED pass reaches ELM-drawn views
+
+`Features/Appearance.xm` has two halves. The palette hooks (`YTColor`,
+`YTCommonColorPalette`) cover everything YouTube colours through its own theme;
+sheets, chip bars, the comment composer, panel footers and live chat set a
+near-black background on the view instead, so each is painted by hand.
+
+Those views are all `_ASDisplayView` (AsyncDisplayKit) with an opaque ELM
+renderer behind them, so **the accessibility identifier is the only stable
+handle** — `id.elements.components.filter_chip_bar`, `eml.chip_bar_collection`,
+and so on. Where the identifier is not enough to tell a sheet from the feed
+behind it, `-[UIView _viewControllerForAncestor]` says which screen the view
+landed on.
+
+Two things follow from that:
+
+- A drifted identifier fails silently: the surface just stays grey. Nothing
+  crashes, so a report of "this bit is still grey after a YouTube bump" means an
+  identifier to re-check, not a bug.
+- The same identifiers are the only view-level handle on ELM content in general.
+  Removing views this way is a different matter — it happens after layout, and
+  `_ASCollectionViewCell` is recycled, so a gutted cell comes back blank. Read
+  is safe; write is not.
+
 ### How subtitles are pinned
 
 `Features/Subtitles.xm` hooks exactly one getter,

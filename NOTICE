@@ -72,9 +72,11 @@ YouMod
   Copyright (C) Tonwalter888
   https://github.com/Tonwalter888/YouMod
   Licensed under the GNU General Public License v3.0.
-  Source of the OLED dark mode palette hooks (Features/Appearance.xm), the
-  navigation bar button hiding (Features/NavigationBar.xm) and the pivot bar
-  item filtering (Features/TabBar.xm).
+  Source of the OLED dark mode palette hooks and the view-level pass that
+  paints the sheets, chip bars and panels YouTube colours itself
+  (Features/Appearance.xm), the navigation bar button hiding
+  (Features/NavigationBar.xm) and the pivot bar item filtering
+  (Features/TabBar.xm).
 
 YTUnShorts
   Copyright (c) PoomSmart
