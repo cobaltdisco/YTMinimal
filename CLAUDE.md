@@ -12,6 +12,12 @@ containing several tweak dylibs, which is then injected into a decrypted
 There is no jailbreak in the loop: `SideloadFixes.xm` is what makes Google
 sign-in work in a resigned app, so treat it as load-bearing.
 
+**No YouTube version is pinned.** The build injects into whatever decrypted IPA
+is handed to it, so a hook cannot assume one release. Prefer hooks that fall
+back to `%orig` and features that degrade to "does nothing" when a selector,
+identifier or key has moved, over ones that break the app on a version they
+were not written against.
+
 `upstream` remote points at `JeffreyCA/YTMinimal`; `origin` is our fork.
 
 ## Layout
@@ -196,9 +202,10 @@ landed on.
 
 Two things follow from that:
 
-- A drifted identifier fails silently: the surface just stays grey. Nothing
-  crashes, so a report of "this bit is still grey after a YouTube bump" means an
-  identifier to re-check, not a bug.
+- An identifier that does not match fails silently: the surface just stays grey.
+  Nothing crashes, which is the property to keep given the YouTube version
+  floats. A report of "this bit is still grey" means an identifier to re-check
+  against that build, not a bug.
 - The same identifiers are the only view-level handle on ELM content in general.
   Removing views this way is a different matter — it happens after layout, and
   `_ASCollectionViewCell` is recycled, so a gutted cell comes back blank. Read
