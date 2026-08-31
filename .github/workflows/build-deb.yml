@@ -46,9 +46,18 @@ jobs:
 
     steps:
       - name: Checkout main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: true
+
+      - name: Fetch the two nested submodules
+        run: |
+          # The checkout above is deliberately non-recursive: a recursive one
+          # also pulls Tweaks/iSponsorBlock's own Headers/YouTubeHeader, and
+          # every YouTube class then ends up declared twice. These two are
+          # required and collide with nothing, so fetch them by path.
+          git -C Tweaks/DontEatMyContent submodule update --init --depth 1 YTHeaders
+          git -C Tweaks/youtube-native-share submodule update --init --depth 1 protobuf
 
       - name: Parse control file version
         id: parse_control
@@ -63,7 +72,7 @@ jobs:
         run: echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
 
       - name: Setup Theos
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: theos/theos
           ref: master
@@ -72,7 +81,7 @@ jobs:
 
       - name: Cache iOS SDK
         id: sdk-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: theos/sdks/iPhoneOS16.5.sdk
           key: iPhoneOS16.5.sdk
@@ -92,7 +101,7 @@ jobs:
           THEOS: ${{ github.workspace }}/theos
 
       - name: Create release
-        uses: softprops/action-gh-release@v0.1.15
+        uses: softprops/action-gh-release@v3
         env:
           TWEAK_VERSION: ${{ steps.parse_control.outputs.TWEAK_VERSION }}
         with:

@@ -70,8 +70,11 @@ this machine: Theos at `~/theos`, `iPhoneOS16.5.sdk` in `~/theos/sdks`, Homebrew
   git -C Tweaks/iSponsorBlock submodule deinit -f Headers/YouTubeHeader
   ```
 
-- **But two nested submodules *are* required**, and CI's non-recursive checkout
-  does not fetch them. `scripts/env.sh` does not do this for you:
+- **But two nested submodules *are* required**, and a non-recursive checkout
+  does not fetch them — this is what breaks CI when it is missing, as
+  `Tweaks/DontEatMyContent` fails on `'YTHeaders/YTPlayerViewController.h' file
+  not found`. Both workflows have a "Fetch the two nested submodules" step for
+  it; `scripts/env.sh` does not do this for you:
 
   ```bash
   git -C Tweaks/DontEatMyContent submodule update --init --depth 1 YTHeaders
