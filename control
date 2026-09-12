@@ -1,6 +1,6 @@
 Package: ca.jeffrey.ytminimal
 Name: YTMinimal
-Version: 1.0.2
+Version: 1.0.3
 Architecture: iphoneos-arm
 Description: Minimal YouTube tweak bundle: iSponsorBlock, DontEatMyContent, YouChooseQuality, native share, and YTMinimalUI's interface options
 Maintainer: JeffreyCA
