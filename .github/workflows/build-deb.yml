@@ -100,6 +100,32 @@ jobs:
         env:
           THEOS: ${{ github.workspace }}/theos
 
+      - name: Collect dSYMs
+        env:
+          TWEAK_VERSION: ${{ steps.parse_control.outputs.TWEAK_VERSION }}
+        run: |
+          # Theos runs dsymutil on every link before it strips, so a release
+          # build already leaves a .dSYM next to each dylib; nothing has to be
+          # passed to make for this. Alderis is built by xcodebuild and puts
+          # its own inside the xcarchive.
+          mkdir -p dsyms
+          find .theos -type d -name '*.dSYM' -exec cp -R {} dsyms/ \;
+          ls dsyms
+          # An empty zip would sail through the upload and only be noticed when
+          # someone needed to symbolicate a crash.
+          if [ -z "$(ls -A dsyms)" ]; then
+            echo "Error: no dSYM bundles were produced."
+            exit 1
+          fi
+          zip -qr "YTMinimal_${TWEAK_VERSION}_dSYMs.zip" dsyms
+
+      - name: Upload dSYMs artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: dSYMs
+          path: YTMinimal_${{ steps.parse_control.outputs.TWEAK_VERSION }}_dSYMs.zip
+          retention-days: 14
+
       - name: Create release
         uses: softprops/action-gh-release@v3
         env:
@@ -110,4 +136,6 @@ jobs:
           name: v${{ env.TWEAK_VERSION }}
           files: |
             packages/*.deb
+            YTMinimal_${{ env.TWEAK_VERSION }}_dSYMs.zip
           prerelease: ${{ inputs.prerelease }}
+          fail_on_unmatched_files: true

@@ -246,6 +246,13 @@ tagged from the `Version:` line in `control`. Bump `control` before dispatching.
 `release_tag` + `artifact_filename` pointing at one already attached to a release
 in this repo.
 
+Both also attach `YTMinimal_<version>_dSYMs.zip`, the debug symbols for every
+dylib in that build — keep the one matching a release around, or a crash report
+from it can never be symbolicated. Nothing has to be passed to `make` for this:
+Theos runs `dsymutil` on each link *before* it strips, so `FINALPACKAGE=1`
+already leaves a `.dSYM` beside every dylib in `.theos/obj/arm64`, and Alderis'
+lands in its xcarchive. The collect step fails the build if it finds none.
+
 ## Conventions
 
 - Match the existing code: Objective-C with Logos (`.xm`/`.x`), ARC on, hooks
