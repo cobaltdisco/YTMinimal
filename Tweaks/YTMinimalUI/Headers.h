@@ -27,7 +27,13 @@
 #import <YouTubeHeader/YTIElementRenderer.h>
 #import <YouTubeHeader/_ASDisplayView.h>
 #import <YouTubeHeader/ASCollectionView.h>
+#import <YouTubeHeader/ASDisplayNode.h>
 #import <YouTubeHeader/YTActionSheetDialogViewController.h>
+
+// AsyncDisplayKit's scroll view. The submodule has ASDisplayNode but not this.
+@interface ASScrollView : UIScrollView
+@property (nonatomic, readonly) ASDisplayNode *scrollNode;
+@end
 
 // YTColor.h in the submodule stops at black3.
 @interface YTColor (YTMinimalUI)

@@ -46,7 +46,7 @@ static UIColor *YTMinimalUIBlackWhenDark(UIColor *light) {
     return self.pageStyle == 1 ? [UIColor blackColor] : %orig;
 }
 - (UIColor *)brandBackgroundSecondary {
-    return self.pageStyle == 1 ? [[UIColor blackColor] colorWithAlphaComponent:0.9] : %orig;
+    return self.pageStyle == 1 ? [UIColor blackColor] : %orig;
 }
 - (UIColor *)raisedBackground {
     return self.pageStyle == 1 ? [UIColor blackColor] : %orig;
@@ -73,6 +73,9 @@ static UIColor *YTMinimalUIBlackWhenDark(UIColor *light) {
 
 - (void)didMoveToWindow {
     %orig;
+    // This also fires when a view leaves the window, and every ELM view passes
+    // through here, so skip the controller walk below for those.
+    if (!self.window) return;
 
     NSString *identifier = self.accessibilityIdentifier;
 
@@ -121,11 +124,35 @@ static UIColor *YTMinimalUIBlackWhenDark(UIColor *light) {
     }
 
     // A standalone ELM element names its template in the renderer description;
-    // the transcript panel is the one worth catching.
+    // the transcript panel and the search field above the video timeline are the
+    // ones worth catching.
     if ([controller isKindOfClass:%c(YTELMViewController)]) {
-        id renderer = [controller valueForKey:@"_renderer"];
-        if ([[renderer description] containsString:@"transcript_panel.eml"])
+        NSString *description = [[controller valueForKey:@"_renderer"] description];
+        if ([identifier isEqualToString:@"id.elements.components.text_field"] && [description containsString:@"timeline_search_input_form_id"] && [description containsString:@"search_input.eml"])
+            self.superview.backgroundColor = YTMinimalUIBlackWhenDark([UIColor clearColor]);
+        else if ([description containsString:@"transcript_panel.eml"])
             self.backgroundColor = YTMinimalUIBlackWhenDark([UIColor clearColor]);
+    }
+}
+
+%end
+
+// The report form's pages scroll inside an ASScrollView whose own background is
+// grey. The scroll view has no identifier; the page container inside it does.
+// Its children may not be attached yet when it lands in the window, in which
+// case this does nothing and the form stays grey.
+%hook ASScrollView
+
+- (void)didMoveToWindow {
+    %orig;
+    if (!self.window) return;
+
+    for (id child in self.scrollNode.yogaChildren) {
+        NSString *description = [child description];
+        if ([description containsString:@"id.elements.components.report_form_reason_select_page.container"] || [description containsString:@"id.elements.components.report_form_sign_in_page.container"]) {
+            self.backgroundColor = YTMinimalUIBlackWhenDark([UIColor clearColor]);
+            break;
+        }
     }
 }
 
@@ -135,6 +162,7 @@ static UIColor *YTMinimalUIBlackWhenDark(UIColor *light) {
 
 - (void)didMoveToWindow {
     %orig;
+    if (!self.window) return;
 
     NSString *identifier = self.accessibilityIdentifier;
     if ([identifier isEqualToString:@"eml.chip_bar_collection"] || [identifier isEqualToString:@"subs_channel_bar.collection"]) {
@@ -152,6 +180,7 @@ static UIColor *YTMinimalUIBlackWhenDark(UIColor *light) {
 
 - (void)didMoveToWindow {
     %orig;
+    if (!self.window) return;
     if ([self.superview isKindOfClass:%c(YTContextualSheetView)])
         self.backgroundColor = YTMinimalUIBlackWhenDark([UIColor whiteColor]);
 }
@@ -165,6 +194,7 @@ static UIColor *YTMinimalUIBlackWhenDark(UIColor *light) {
 
 - (void)didMoveToWindow {
     %orig;
+    if (!self.window) return;
     if (![self.superview isKindOfClass:%c(GOODialogActionMDCButton)]) return;
     UIViewController *controller = [self _viewControllerForAncestor];
     if ([controller isKindOfClass:%c(YTBottomSheetController)] || [controller isKindOfClass:%c(GOOModalWindowViewController)]) return;
