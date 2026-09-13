@@ -57,18 +57,38 @@ jobs:
       contents: write
 
     steps:
+      - name: Mask the IPA URL
+        run: |
+          # Read from the event payload rather than an expression or env var, so
+          # the URL never shows up in a printed script or env block before the
+          # mask is registered. This only keeps it out of the logs: a dispatch
+          # input is not a secret, and anyone who can see the run's inputs can
+          # still read it.
+          url=$(jq -r '.inputs.ipa_url // empty' "$GITHUB_EVENT_PATH")
+          if [ -n "$url" ]; then
+            url=${url//'%'/'%25'}
+            url=${url//$'\r'/'%0D'}
+            url=${url//$'\n'/'%0A'}
+            echo "::add-mask::$url"
+          fi
+
       - name: Checkout main
         uses: actions/checkout@v7
         with:
           submodules: true
 
       - name: Validate inputs
+        env:
+          IPA_URL: ${{ inputs.ipa_url }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          ARTIFACT_FILENAME: ${{ inputs.artifact_filename }}
         run: |
-          if [ -z "${{ inputs.ipa_url }}" ] && [ -z "${{ inputs.release_tag }}" ]; then
+          # ipa_url wins when both sources are given, as in the download steps.
+          if [ -z "$IPA_URL" ] && [ -z "$RELEASE_TAG" ]; then
             echo "Error: Either 'ipa_url' or 'release_tag' must be provided."
             exit 1
           fi
-          if [ -n "${{ inputs.release_tag }}" ] && [ -z "${{ inputs.artifact_filename }}" ]; then
+          if [ -z "$IPA_URL" ] && [ -z "$ARTIFACT_FILENAME" ]; then
             echo "Error: 'artifact_filename' is required when using 'release_tag'."
             exit 1
           fi
@@ -98,13 +118,40 @@ jobs:
           echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
           pipx ensurepath
 
-      - name: Setup Theos
-        uses: actions/checkout@v7
+      - name: Resolve Theos revision
+        id: theos_rev
+        run: |
+          # Theos still floats on master; the revision is resolved once so the
+          # cache key and the checkout agree, and recorded for traceability.
+          sha=$(git ls-remote https://github.com/theos/theos.git HEAD | cut -f1)
+          if [ -z "$sha" ]; then
+            echo "Error: could not resolve the Theos revision."
+            exit 1
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "Theos: \`$sha\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Cache Theos
+        id: theos-cache
+        uses: actions/cache@v6
         with:
-          repository: theos/theos
-          ref: master
-          path: theos
-          submodules: recursive
+          # The SDK has its own long-lived cache below, so a Theos bump does not
+          # re-download it.
+          path: |
+            theos
+            !theos/sdks
+          key: theos-${{ steps.theos_rev.outputs.sha }}
+
+      - name: Setup Theos
+        if: steps.theos-cache.outputs.cache-hit != 'true'
+        env:
+          THEOS_SHA: ${{ steps.theos_rev.outputs.sha }}
+        run: |
+          git init -q theos
+          git -C theos remote add origin https://github.com/theos/theos.git
+          git -C theos fetch -q --depth 1 origin "$THEOS_SHA"
+          git -C theos checkout -q FETCH_HEAD
+          git -C theos submodule update -q --init --recursive --depth 1
 
       - name: Cache iOS SDK
         id: sdk-cache
@@ -120,6 +167,8 @@ jobs:
           cd sdks
           git sparse-checkout set --no-cone iPhoneOS16.5.sdk
           git checkout
+          # A cached Theos comes back without sdks/.
+          mkdir -p "$GITHUB_WORKSPACE/theos/sdks"
           mv iPhoneOS16.5.sdk "$GITHUB_WORKSPACE/theos/sdks/"
 
       - name: Build deb
@@ -155,9 +204,9 @@ jobs:
 
       - name: Download YouTube IPA from URL
         if: inputs.ipa_url != ''
-        run: |
-          echo "Downloading YouTube IPA from: ${{ inputs.ipa_url }}"
-          curl -L --fail -o YouTube.ipa "${{ inputs.ipa_url }}"
+        env:
+          IPA_URL: ${{ inputs.ipa_url }}
+        run: curl -L --fail -o YouTube.ipa "$IPA_URL"
 
       - name: Download YouTube IPA from release
         if: inputs.ipa_url == '' && inputs.release_tag != ''
@@ -170,9 +219,12 @@ jobs:
 
       - name: Rename release artifact
         if: inputs.ipa_url == '' && inputs.release_tag != ''
-        run: mv "${{ inputs.artifact_filename }}" YouTube.ipa
+        env:
+          ARTIFACT_FILENAME: ${{ inputs.artifact_filename }}
+        run: mv -- "$ARTIFACT_FILENAME" YouTube.ipa
 
       - name: Verify YouTube IPA
+        id: youtube
         run: |
           if [ ! -f YouTube.ipa ]; then
             echo "Error: YouTube.ipa not found."
@@ -184,24 +236,45 @@ jobs:
           fi
           echo "YouTube.ipa size: $(wc -c < YouTube.ipa) bytes"
 
+          # No YouTube version is pinned, so name the output after the one this
+          # build was injected into; a crash report is useless without it. The
+          # version ends up in a filename and a step output, so anything outside
+          # a plain version string is rejected. awk reads the whole listing, so
+          # unzip never dies of SIGPIPE under pipefail.
+          plist_path=$(unzip -Z1 YouTube.ipa | awk '/^Payload\/[^\/]+\.app\/Info\.plist$/ && !found { print; found = 1 }')
+          if [ -z "$plist_path" ]; then
+            echo "Error: no Payload/*.app/Info.plist in YouTube.ipa."
+            exit 1
+          fi
+          unzip -p YouTube.ipa "$plist_path" > "$RUNNER_TEMP/YouTube-Info.plist"
+          yt_version=$(plutil -extract CFBundleShortVersionString raw -o - "$RUNNER_TEMP/YouTube-Info.plist")
+          if ! [[ "$yt_version" =~ ^[0-9A-Za-z._-]+$ ]]; then
+            echo "Error: unexpected YouTube version string."
+            exit 1
+          fi
+          echo "YT_VERSION=$yt_version" >> "$GITHUB_OUTPUT"
+          echo "YouTube: \`$yt_version\`" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Merge deb and extension into IPA
         env:
           TWEAK_VERSION: ${{ steps.parse_control.outputs.TWEAK_VERSION }}
+          YT_VERSION: ${{ steps.youtube.outputs.YT_VERSION }}
         run: |
           appex="Extensions/OpenYouTubeSafariExtension/OpenYouTubeSafariExtension.appex"
           deb=$(ls packages/*.deb | head -n1)
-          cyan -i YouTube.ipa -o YTMinimal_${TWEAK_VERSION}.ipa -uwef "$deb" "$appex"
+          cyan -i YouTube.ipa -o "YTMinimal_${TWEAK_VERSION}_YouTube_${YT_VERSION}.ipa" -uwef "$deb" "$appex"
 
       - name: Create release
         uses: softprops/action-gh-release@v3
         env:
           TWEAK_VERSION: ${{ steps.parse_control.outputs.TWEAK_VERSION }}
+          YT_VERSION: ${{ steps.youtube.outputs.YT_VERSION }}
         with:
           draft: true
           tag_name: v${{ env.TWEAK_VERSION }}-ipa
-          name: v${{ env.TWEAK_VERSION }} (IPA)
+          name: v${{ env.TWEAK_VERSION }} (IPA, YouTube ${{ env.YT_VERSION }})
           files: |
-            YTMinimal_${{ env.TWEAK_VERSION }}.ipa
+            YTMinimal_${{ env.TWEAK_VERSION }}_YouTube_${{ env.YT_VERSION }}.ipa
             YTMinimal_${{ env.TWEAK_VERSION }}_dSYMs.zip
           prerelease: ${{ inputs.prerelease }}
           fail_on_unmatched_files: true

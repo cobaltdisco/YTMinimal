@@ -41,7 +41,7 @@ were not written against.
 ./scripts/build.sh                                  # .deb into packages/
 ./scripts/build.sh ENABLE_ISPONSORBLOCK=0           # any ENABLE_* flag
 ./scripts/build.sh clean package                    # extra make targets pass through
-./scripts/build-ipa.sh ~/Downloads/<decrypted>.ipa  # .deb + inject -> YTMinimal_<version>.ipa
+./scripts/build-ipa.sh ~/Downloads/<decrypted>.ipa  # .deb + inject -> YTMinimal_<version>_YouTube_<yt>.ipa
 ```
 
 A full build takes well under a minute. Requirements, all already installed on
@@ -244,7 +244,16 @@ Both workflows are manual (`workflow_dispatch`) and create **draft** releases
 tagged from the `Version:` line in `control`. Bump `control` before dispatching.
 `build-ipa.yml` needs either a direct `ipa_url` to a decrypted YouTube IPA or a
 `release_tag` + `artifact_filename` pointing at one already attached to a release
-in this repo.
+in this repo. The IPA is named `YTMinimal_<version>_YouTube_<yt>.ipa` after the
+`CFBundleShortVersionString` read from the input IPA, since no YouTube version
+is pinned. `ipa_url` is masked in the logs by the first step, which reads it
+from the event payload — keep it that way, and never interpolate `inputs.*`
+into a `run:` script; pass it through `env:`.
+
+Theos is not checked out on every run: its `master` HEAD is resolved with `git
+ls-remote`, cached under that SHA (excluding `theos/sdks`, which has its own
+cache), and written to the job summary, so a release can be traced to the Theos
+it was built with.
 
 Both also attach `YTMinimal_<version>_dSYMs.zip`, the debug symbols for every
 dylib in that build — keep the one matching a release around, or a crash report
