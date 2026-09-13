@@ -76,7 +76,10 @@ YouMod
   paints the sheets, chip bars and panels YouTube colours itself
   (Features/Appearance.xm), the navigation bar button hiding
   (Features/NavigationBar.xm) and the pivot bar item filtering
-  (Features/TabBar.xm).
+  (Features/TabBar.xm). Outside Tweaks/YTMinimalUI, also the source of the
+  keychain access-group hooks for SSOFolsomKeychainUtils, GULKeychainStorage,
+  GNPEncryptionConfiguration, FIRInstallationsStore and CHMConfiguration in
+  SideloadFixes.xm.
 
 YTUnShorts
   Copyright (c) PoomSmart
