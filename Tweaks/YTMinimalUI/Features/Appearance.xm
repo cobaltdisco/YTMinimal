@@ -1,5 +1,6 @@
 #import "../YTMinimalUI.h"
 #import "../Headers.h"
+#import <objc/runtime.h>
 
 // OLED dark mode: replace YouTube's near-black greys with true black so the
 // pixels are actually off on an OLED panel.
@@ -23,6 +24,34 @@ static UIColor *YTMinimalUIBlackWhenDark(UIColor *light) {
     return [UIColor colorWithDynamicProvider:^UIColor *(UITraitCollection *traits) {
         return traits.userInterfaceStyle == UIUserInterfaceStyleDark ? [UIColor blackColor] : light;
     }];
+}
+
+// Which of the standalone ELM templates painted below a renderer belongs to.
+typedef NS_ENUM(NSInteger, YTMinimalUIELMTemplate) {
+    YTMinimalUIELMTemplateOther = 1,
+    YTMinimalUIELMTemplateTimelineSearch,
+    YTMinimalUIELMTemplateTranscript,
+};
+
+static const void *kYTMinimalUIELMTemplateKey = &kYTMinimalUIELMTemplateKey;
+
+// -description on a renderer serialises the whole protobuf tree to text, and
+// every view inside the controller asks about the same renderer, so that cost
+// was paid once per view on every tab switch. The answer is kept on the
+// renderer itself, which also means a replaced renderer is looked at afresh.
+static YTMinimalUIELMTemplate YTMinimalUIELMTemplateOfRenderer(id renderer) {
+    if (!renderer) return YTMinimalUIELMTemplateOther;
+    NSNumber *cached = objc_getAssociatedObject(renderer, kYTMinimalUIELMTemplateKey);
+    if (cached) return (YTMinimalUIELMTemplate)cached.integerValue;
+
+    NSString *description = [renderer description];
+    YTMinimalUIELMTemplate kind = YTMinimalUIELMTemplateOther;
+    if ([description containsString:@"timeline_search_input_form_id"] && [description containsString:@"search_input.eml"])
+        kind = YTMinimalUIELMTemplateTimelineSearch;
+    else if ([description containsString:@"transcript_panel.eml"])
+        kind = YTMinimalUIELMTemplateTranscript;
+    objc_setAssociatedObject(renderer, kYTMinimalUIELMTemplateKey, @(kind), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    return kind;
 }
 
 %group gOLEDDarkMode
@@ -127,10 +156,10 @@ static UIColor *YTMinimalUIBlackWhenDark(UIColor *light) {
     // the transcript panel and the search field above the video timeline are the
     // ones worth catching.
     if ([controller isKindOfClass:%c(YTELMViewController)]) {
-        NSString *description = [[controller valueForKey:@"_renderer"] description];
-        if ([identifier isEqualToString:@"id.elements.components.text_field"] && [description containsString:@"timeline_search_input_form_id"] && [description containsString:@"search_input.eml"])
+        YTMinimalUIELMTemplate kind = YTMinimalUIELMTemplateOfRenderer([controller valueForKey:@"_renderer"]);
+        if (kind == YTMinimalUIELMTemplateTimelineSearch && [identifier isEqualToString:@"id.elements.components.text_field"])
             self.superview.backgroundColor = YTMinimalUIBlackWhenDark([UIColor clearColor]);
-        else if ([description containsString:@"transcript_panel.eml"])
+        else if (kind == YTMinimalUIELMTemplateTranscript)
             self.backgroundColor = YTMinimalUIBlackWhenDark([UIColor clearColor]);
     }
 }
