@@ -64,6 +64,7 @@ NSBundle *YTMinimalUIBundle(void);
 
 // Every Features/<Name>.xm defines one of these and gets called from %ctor.
 void YTMinimalUIInitAppearance(void);
+void YTMinimalUIInitPageStyle(void);
 void YTMinimalUIInitNavigationBar(void);
 void YTMinimalUIInitTabBar(void);
 void YTMinimalUIInitShorts(void);

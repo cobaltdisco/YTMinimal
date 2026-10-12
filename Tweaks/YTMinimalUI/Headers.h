@@ -4,6 +4,7 @@
 #import <YouTubeHeader/YTColor.h>
 #import <YouTubeHeader/YTCommonColorPalette.h>
 #import <YouTubeHeader/YTInnerTubeCollectionViewController.h>
+#import <YouTubeHeader/YTPageStyleControllerImpl.h>
 #import <YouTubeHeader/YTRightNavigationButtons.h>
 #import <YouTubeHeader/YTIPivotBarRenderer.h>
 #import <YouTubeHeader/YTIPivotBarSupportedRenderers.h>
@@ -135,6 +136,17 @@
 // own above Account instead of a category inside it.
 @interface YTAppSettingsGroupPresentationData : NSObject
 + (NSArray *)orderedGroups;
+@end
+
+// The theme broadcast. -systemThemeDidChange recomputes the page style from the
+// trait collection and tells every observer; -notifyObservers is the telling.
+@interface YTPageStyleControllerImpl (YTMinimalUI)
+- (void)systemThemeDidChange;
+- (void)notifyObservers;
+@end
+
+@interface YTMainWindowUtils : NSObject
++ (UIWindow *)mainWindow;
 @end
 
 // Where YouTube remembers whether you last had captions on. Backed by

@@ -12,6 +12,7 @@ this bundle shows in YouTube's own settings screen.
 | `YTMinimalUI.h` | Preference keys and accessors, localisation macro, feature initialiser declarations |
 | `Headers.h` | Declarations for YouTube classes `Headers/YouTubeHeader` does not cover |
 | `Features/Appearance.xm` | OLED dark mode |
+| `Features/PageStyle.xm` | Re-sending YouTube's theme change when one was missed in the background |
 | `Features/NavigationBar.xm` | Hiding top bar buttons, including the Messages button |
 | `Features/TabBar.xm` | Which tabs the bottom bar shows, labels, launch tab |
 | `Features/Shorts.xm` | Dropping the Shorts shelf from the feed |

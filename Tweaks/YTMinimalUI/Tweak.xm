@@ -10,6 +10,7 @@
 %ctor {
     @autoreleasepool {
         YTMinimalUIInitAppearance();
+        YTMinimalUIInitPageStyle();
         YTMinimalUIInitNavigationBar();
         YTMinimalUIInitTabBar();
         YTMinimalUIInitShorts();
