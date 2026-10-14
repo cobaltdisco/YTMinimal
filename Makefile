@@ -4,15 +4,13 @@ export SYSROOT = $(SDK_PATH)
 export ARCHS = arm64
 
 export libcolorpicker_ARCHS = arm64
-export Alderis_XCODEOPTS = LD_DYLIB_INSTALL_NAME=@rpath/Alderis.framework/Alderis
-export Alderis_XCODEFLAGS = DYLIB_INSTALL_NAME_BASE=/Library/Frameworks BUILD_LIBRARY_FOR_DISTRIBUTION=YES ARCHS="$(ARCHS)"
-export libcolorpicker_LDFLAGS = -F$(TARGET_PRIVATE_FRAMEWORK_PATH) -install_name @rpath/libcolorpicker.dylib
+# Tweaks/Alderis/Makefile assigns its own Alderis_XCODEFLAGS (and lcpshim its own
+# libcolorpicker_LDFLAGS), which win over anything exported from here, so Alderis
+# settings ride on Alderis_XCODEOPTS, which it leaves alone. Its project targets
+# iOS 12.0, below Xcode 27's floor of 15.0; this drops Alderis, and with it
+# iSponsorBlock, on iOS 13-14 — only reachable with a years-old YouTube IPA.
+export Alderis_XCODEOPTS = LD_DYLIB_INSTALL_NAME=@rpath/Alderis.framework/Alderis IPHONEOS_DEPLOYMENT_TARGET=15.0
 export ADDITIONAL_CFLAGS = -I$(THEOS_PROJECT_DIR)/Headers
-
-# The iSponsorBlock subproject (Tweaks/iSponsorBlock) uses Alderis's color picker.
-# Override its EMBED_FRAMEWORKS from here so the Alderis.framework built by our
-# Alderis subproject gets bundled into the staged deb.
-export iSponsorBlock_EMBED_FRAMEWORKS = $(_THEOS_LOCAL_DATA_DIR)/$(THEOS_OBJ_DIR_NAME)/install_Alderis.xcarchive/Products/var/jb/Library/Frameworks/Alderis.framework
 
 ifeq ($(ROOTLESS),1)
 THEOS_PACKAGE_SCHEME=rootless

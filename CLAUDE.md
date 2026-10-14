@@ -94,9 +94,16 @@ this machine: Theos at `~/theos`, `iPhoneOS16.5.sdk` in `~/theos/sdks`, Homebrew
 
 - The SDK is pinned to **16.5** and the deployment target to **13.0**. Xcode's
   own newer SDK is used for the Alderis framework subproject; that is expected.
+  The Alderis subtree sets its own targets: the framework is raised to **15.0**
+  through `Alderis_XCODEOPTS` in the root Makefile (Xcode 27 rejects its 12.0),
+  and lcpshim's `libcolorpicker.dylib` keeps Alderis' **12.0**.
 - Alderis builds through `xcodebuild` and is the slow part of a clean build. Its
-  framework is bundled into the deb via `iSponsorBlock_EMBED_FRAMEWORKS` in the
-  root Makefile.
+  framework enters the deb through the Alderis subproject's own staging; cyan
+  moves it into the app's `Frameworks/` and rewrites the absolute load paths
+  (`/usr/lib/libcolorpicker.dylib`, `/Library/Frameworks/…`) to `@rpath`.
+- An `export` in the root Makefile does **not** reach a subproject whose own
+  Makefile assigns the same variable — the subproject's assignment wins. That is
+  why the Alderis settings ride on `Alderis_XCODEOPTS`, the one it leaves alone.
 
 ## Toggling tweaks
 
