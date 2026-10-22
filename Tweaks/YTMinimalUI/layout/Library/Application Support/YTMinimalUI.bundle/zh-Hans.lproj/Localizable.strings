@@ -29,6 +29,10 @@
 "TAB_SHORTS" = "Shorts";
 "TAB_SUBSCRIPTIONS" = "订阅";
 "TAB_YOU" = "我";
+"TAB_BAR_STYLE" = "标签栏样式";
+"TAB_BAR_STYLE_FLOATING_SOLID" = "悬浮（实底）";
+"TAB_BAR_STYLE_FLOATING_FROSTED" = "悬浮（毛玻璃）";
+"TAB_BAR_STYLE_CLASSIC" = "旧版";
 
 /* Shorts */
 "SHOW_SHORTS_SHELF" = "显示首页信息流中的 Shorts";

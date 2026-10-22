@@ -24,6 +24,14 @@
 #define kShowCreateButton @"ShowCreateButton"
 #define kShowTabLabels @"ShowTabLabels"
 #define kDefaultTab @"DefaultTab"
+// Which bottom bar YouTube uses. Read once at launch, since YouTube only
+// decides at launch; the values are indices into the settings picker.
+#define kTabBarStyle @"TabBarStyle"
+typedef NS_ENUM(NSInteger, YTMinimalUITabBarStyle) {
+    YTMinimalUITabBarStyleFloatingSolid = 0,
+    YTMinimalUITabBarStyleFloatingFrosted = 1,
+    YTMinimalUITabBarStyleClassic = 2,
+};
 
 // Shorts
 #define kShowShortsShelf @"ShowShortsShelf"

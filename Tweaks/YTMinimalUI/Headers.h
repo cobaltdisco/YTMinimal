@@ -18,6 +18,7 @@
 #import <YouTubeHeader/YTSettingsSectionItemManager.h>
 #import <YouTubeHeader/YTSettingsSectionController.h>
 #import <YouTubeHeader/YTSettingsViewController.h>
+#import <YouTubeHeader/YTColdConfig.h>
 #import <YouTubeHeader/YTUIUtils.h>
 #import <YouTubeHeader/YTIIcon.h>
 #import <YouTubeHeader/YTIItemSectionRenderer.h>
@@ -111,6 +112,23 @@
 
 @interface YTPivotBarView : UIView
 - (void)setRenderer:(YTIPivotBarRenderer *)renderer;
+@end
+
+// The floating, pill-shaped bar. A Swift class behind an experiment
+// (YTFloatingBarExperiment); the controller picks it or YTPivotBarView.
+@interface YTFloatingPivotBarView : UIView
++ (CGFloat)maxWidth;
+@property (nonatomic, strong) YTIPivotBarRenderer *renderer;
+@end
+
+// Decides whether the floating bar is used, and how it looks.
+@interface YTFloatingBarExperiment : NSObject
++ (BOOL)enableFloatingBottomBar;
++ (long long)floatingBarStyle;
+@end
+
+@interface YTColdConfig (YTMinimalUIFloatingBar)
+- (long long)mainAppCoreClientIosFloatingBarStyle;
 @end
 
 @interface YTPivotBarViewController : UIViewController

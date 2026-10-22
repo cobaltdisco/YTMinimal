@@ -381,14 +381,50 @@ static void PresentSponsorBlockSettings(void) {
                 [settings pushViewController:picker];
                 return YES;
             }];
-        return @[
+        NSMutableArray <YTSettingsSectionItem *> *tabRows = [NSMutableArray array];
+        // Only builds that have the floating bar get a choice of style.
+        if (NSClassFromString(@"YTFloatingPivotBarView")) {
+            NSArray <NSString *> *styleNames = @[YTMLOC(@"TAB_BAR_STYLE_FLOATING_SOLID"),
+                YTMLOC(@"TAB_BAR_STYLE_FLOATING_FROSTED"), YTMLOC(@"TAB_BAR_STYLE_CLASSIC")];
+            NSInteger (^currentStyle)(void) = ^NSInteger {
+                NSInteger style = YTMinimalUIInt(kTabBarStyle, YTMinimalUITabBarStyleFloatingFrosted);
+                return (style >= 0 && style < (NSInteger)styleNames.count) ? style : YTMinimalUITabBarStyleFloatingFrosted;
+            };
+            [tabRows addObject:[%c(YTSettingsSectionItem) itemWithTitle:YTMLOC(@"TAB_BAR_STYLE")
+                titleDescription:nil
+                accessibilityIdentifier:nil
+                detailTextBlock:^NSString *() {
+                    return styleNames[currentStyle()];
+                }
+                selectBlock:^BOOL (YTSettingsCell *cell, NSUInteger index) {
+                    NSMutableArray <YTSettingsSectionItem *> *choices = [NSMutableArray array];
+                    for (NSUInteger i = 0; i < styleNames.count; i++) {
+                        NSUInteger choice = i;
+                        [choices addObject:[%c(YTSettingsSectionItem) checkmarkItemWithTitle:styleNames[i]
+                            selectBlock:^BOOL (YTSettingsCell *innerCell, NSUInteger innerIndex) {
+                                YTMinimalUISetInt(kTabBarStyle, choice);
+                                return YES;
+                            }]];
+                    }
+                    YTSettingsPickerViewController *picker = [[%c(YTSettingsPickerViewController) alloc]
+                        initWithNavTitle:YTMLOC(@"TAB_BAR_STYLE")
+                        pickerSectionTitle:nil
+                        rows:choices
+                        selectedItemIndex:currentStyle()
+                        parentResponder:responder];
+                    [settings pushViewController:picker];
+                    return YES;
+                }]];
+        }
+        [tabRows addObjectsFromArray:@[
             YTMSwitchRow(YTMLOC(@"SHOW_HOME_TAB"), nil, kShowHomeTab, YES),
             YTMSwitchRow(YTMLOC(@"SHOW_SHORTS_TAB"), nil, kShowShortsTab, YES),
             YTMSwitchRow(YTMLOC(@"SHOW_SUBSCRIPTIONS_TAB"), nil, kShowSubscriptionsTab, YES),
             YTMSwitchRow(YTMLOC(@"SHOW_CREATE_BUTTON"), nil, kShowCreateButton, YES),
             YTMSwitchRow(YTMLOC(@"SHOW_TAB_LABELS"), nil, kShowTabLabels, YES),
             launchTab,
-        ];
+        ]];
+        return tabRows;
     })];
 
     [rows addObject:page(YTMLOC(@"SHORTS"), ^NSArray <YTSettingsSectionItem *> *{

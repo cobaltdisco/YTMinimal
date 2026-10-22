@@ -221,6 +221,24 @@ Two things follow from that:
   `_ASCollectionViewCell` is recycled, so a gutted cell comes back blank. Read
   is safe; write is not.
 
+### The floating tab bar
+
+From YouTube 21.4x the bottom bar can be `YTFloatingPivotBarView`, a Swift pill
+behind an experiment, instead of `YTPivotBarView`. Server config picks one per
+launch, so `Features/TabBar.xm` hooks both. It also pins the choice to the
+`TabBarStyle` setting: floating solid, floating frosted (the default), or the
+classic bar. The setting drives `+[YTFloatingBarExperiment
+enableFloatingBottomBar]` and the style number. That number goes on
+`+floatingBarStyle` and on `-[YTColdConfig mainAppCoreClientIosFloatingBarStyle]`:
+`1` is frosted, `0` is solid, and 2–5 also come out solid. YouTube reads all of
+this at launch, so the setting is read once in `%ctor` and needs a restart.
+
+The pill is frame-based: `YTAppView` centres it at its `intrinsicContentSize`,
+and it splits that width evenly between its tabs. `+maxWidth` (360pt) is the
+five-tab width, so the `intrinsicContentSize` hook gives each remaining tab a
+fifth of it, with a floor of two tabs' width. Every hook is skipped when the
+class or selector is missing, which leaves older builds on the classic bar.
+
 ### How subtitles are pinned
 
 `Features/Subtitles.xm` hooks exactly one getter,
