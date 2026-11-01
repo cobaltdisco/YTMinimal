@@ -89,8 +89,9 @@ static const NSUInteger kMinTabShares = 2;
 
 // Pins the bar to the style picked in settings. Both values otherwise come
 // from server config, which flips between launches. Floating style 1 is the
-// frosted one; 0 and 2-5 are all solid black. Read once at launch, because
-// YouTube only makes this choice at launch.
+// frosted one. Style 0 was solid black up to 21.42.4 and is partly Liquid
+// Glass from 21.43.5, hence the "Glass" name; 2-5 render like 0. Read once at
+// launch, because YouTube only makes this choice at launch.
 static BOOL gUseFloatingBar = YES;
 static long long gFloatingBarStyle = 1;
 
@@ -157,7 +158,7 @@ void YTMinimalUIInitTabBar(void) {
         %init(gFloatingTabBar);
         NSInteger style = YTMinimalUIInt(kTabBarStyle, YTMinimalUITabBarStyleFloatingFrosted);
         gUseFloatingBar = style != YTMinimalUITabBarStyleClassic;
-        gFloatingBarStyle = style == YTMinimalUITabBarStyleFloatingSolid ? 0 : 1;
+        gFloatingBarStyle = style == YTMinimalUITabBarStyleFloatingGlass ? 0 : 1;
         Class experiment = objc_getClass("YTFloatingBarExperiment");
         if ([experiment respondsToSelector:@selector(enableFloatingBottomBar)]
             && [experiment respondsToSelector:@selector(floatingBarStyle)])

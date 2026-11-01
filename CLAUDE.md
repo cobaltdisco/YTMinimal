@@ -226,11 +226,13 @@ Two things follow from that:
 From YouTube 21.4x the bottom bar can be `YTFloatingPivotBarView`, a Swift pill
 behind an experiment, instead of `YTPivotBarView`. Server config picks one per
 launch, so `Features/TabBar.xm` hooks both. It also pins the choice to the
-`TabBarStyle` setting: floating solid, floating frosted (the default), or the
+`TabBarStyle` setting: floating glass, floating frosted (the default), or the
 classic bar. The setting drives `+[YTFloatingBarExperiment
 enableFloatingBottomBar]` and the style number. That number goes on
 `+floatingBarStyle` and on `-[YTColdConfig mainAppCoreClientIosFloatingBarStyle]`:
-`1` is frosted, `0` is solid, and 2–5 also come out solid. YouTube reads all of
+`1` is frosted, `0` is the glass one, and 2–5 render like `0`. Style `0` was
+solid black up to 21.42.4 and turned partly Liquid Glass in 21.43.5, which is
+why the setting calls it Glass. YouTube reads all of
 this at launch, so the setting is read once in `%ctor` and needs a restart.
 
 The pill is frame-based: `YTAppView` centres it at its `intrinsicContentSize`,

@@ -28,7 +28,7 @@
 // decides at launch; the values are indices into the settings picker.
 #define kTabBarStyle @"TabBarStyle"
 typedef NS_ENUM(NSInteger, YTMinimalUITabBarStyle) {
-    YTMinimalUITabBarStyleFloatingSolid = 0,
+    YTMinimalUITabBarStyleFloatingGlass = 0,
     YTMinimalUITabBarStyleFloatingFrosted = 1,
     YTMinimalUITabBarStyleClassic = 2,
 };

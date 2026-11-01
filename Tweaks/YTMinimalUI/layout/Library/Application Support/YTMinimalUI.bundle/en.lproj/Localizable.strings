@@ -30,7 +30,7 @@
 "TAB_SUBSCRIPTIONS" = "Subscriptions";
 "TAB_YOU" = "You";
 "TAB_BAR_STYLE" = "Tab bar style";
-"TAB_BAR_STYLE_FLOATING_SOLID" = "Floating (Solid)";
+"TAB_BAR_STYLE_FLOATING_GLASS" = "Floating (Glass)";
 "TAB_BAR_STYLE_FLOATING_FROSTED" = "Floating (Frosted)";
 "TAB_BAR_STYLE_CLASSIC" = "Classic";
 

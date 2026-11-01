@@ -384,7 +384,7 @@ static void PresentSponsorBlockSettings(void) {
         NSMutableArray <YTSettingsSectionItem *> *tabRows = [NSMutableArray array];
         // Only builds that have the floating bar get a choice of style.
         if (NSClassFromString(@"YTFloatingPivotBarView")) {
-            NSArray <NSString *> *styleNames = @[YTMLOC(@"TAB_BAR_STYLE_FLOATING_SOLID"),
+            NSArray <NSString *> *styleNames = @[YTMLOC(@"TAB_BAR_STYLE_FLOATING_GLASS"),
                 YTMLOC(@"TAB_BAR_STYLE_FLOATING_FROSTED"), YTMLOC(@"TAB_BAR_STYLE_CLASSIC")];
             NSInteger (^currentStyle)(void) = ^NSInteger {
                 NSInteger style = YTMinimalUIInt(kTabBarStyle, YTMinimalUITabBarStyleFloatingFrosted);
