@@ -11,3 +11,6 @@ obj
 # Local build output
 packages/
 *.ipa
+
+# Personal settings for scripts/install-device.sh
+scripts/local.env

@@ -48,6 +48,19 @@ A full build takes well under a minute. Requirements, all already installed on
 this machine: Theos at `~/theos`, `iPhoneOS16.5.sdk` in `~/theos/sdks`, Homebrew
 `make` / `ldid` / `dpkg`, and `cyan` (pyzule-rw) via pipx for the IPA step.
 
+To try a build on a phone, re-sign and install it in one step:
+
+```bash
+./scripts/install-device.sh YTMinimal_<version>_YouTube_<yt>.ipa "iPhone Air"
+```
+
+It picks the Apple Development certificate and a matching profile from
+Xcode's store (the wildcard one is fine), installs under `YTM_BUNDLE_ID` from
+the git-ignored `scripts/local.env` — keep it the same, so the previous install
+is replaced with its sign-in intact, and launches the app —
+which fails harmlessly if the phone is locked. Pass the built IPA, never the
+decrypted one; the header of the script lists the overrides.
+
 ### Theos gotchas — these will bite
 
 - **GNU make 4 is required.** macOS ships make 3.81, which cannot parse Theos'
