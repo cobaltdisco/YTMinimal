@@ -9,6 +9,8 @@
 #import <YouTubeHeader/YTIPivotBarRenderer.h>
 #import <YouTubeHeader/YTIPivotBarSupportedRenderers.h>
 #import <YouTubeHeader/YTIPivotBarItemRenderer.h>
+#import <YouTubeHeader/YTIAccessibilitySupportedDatas.h>
+#import <YouTubeHeader/YTIAccessibilityData.h>
 #import <YouTubeHeader/YTPivotBarItemView.h>
 #import <YouTubeHeader/YTSettingsCell.h>
 #import <YouTubeHeader/YTSettingsGroupData.h>
@@ -108,6 +110,17 @@
 @end
 
 @interface YTNavigationBarTitleView : UIView
+@end
+
+// The icon-only tab renderer carries more than the submodule declares; these
+// are the fields the injected Subscriptions tab rewrites.
+@interface YTIPivotBarIconOnlyItemRenderer (YTMinimalUI)
+@property (nonatomic, copy) NSString *targetId;
+@property (nonatomic, strong) YTICommand *navigationEndpoint;
+@property (nonatomic, strong) YTIAccessibilitySupportedDatas *accessibility;
+@property (nonatomic, copy) NSData *trackingParams;
+@property (nonatomic, strong) id thumbnail;
+@property (nonatomic, assign) BOOL hasThumbnail;
 @end
 
 @interface YTPivotBarView : UIView

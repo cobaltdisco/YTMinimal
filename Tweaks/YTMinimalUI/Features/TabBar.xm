@@ -10,23 +10,68 @@
 // hidden afterwards, so the remaining tabs space themselves out properly.
 
 // Pivot identifiers as used by the YouTube app. "FEuploads" sits on the
-// icon-only renderer because the Create button has no label.
+// icon-only renderer because the Create button has no label; in the 21.4x
+// layout without a Subscriptions tab, every tab does.
 static NSString *const kHomePivot = @"FEwhat_to_watch";
 static NSString *const kShortsPivot = @"FEshorts";
 static NSString *const kCreatePivot = @"FEuploads";
 static NSString *const kSubscriptionsPivot = @"FEsubscriptions";
 static NSString *const kYouPivot = @"FElibrary";
 
-// Drops the hidden tabs from the renderer in place. Running it twice on the
-// same renderer is harmless.
+static NSString *YTMinimalUIPivotIdentifier(YTIPivotBarSupportedRenderers *item) {
+    // Unset protobuf strings read as @"", so fall through on length.
+    NSString *identifier = [[item pivotBarItemRenderer] pivotIdentifier];
+    if (identifier.length == 0)
+        identifier = [[item pivotBarIconOnlyItemRenderer] pivotIdentifier];
+    return identifier;
+}
+
+// From 21.4x some accounts get a layout with Subscriptions moved into a row of
+// tabs at the top of Home, and every bottom tab sent icon-only. When that
+// happens the Subscriptions tab is put back, built from a copy of the Home
+// tab so it renders like its neighbours. Does nothing when Subscriptions is
+// already there, or when there is no icon-only Home tab to copy.
+static void YTMinimalUIInsertSubscriptionsTab(NSMutableArray <YTIPivotBarSupportedRenderers *> *items) {
+    YTIPivotBarSupportedRenderers *home = nil;
+    NSUInteger youIndex = NSNotFound;
+    for (NSUInteger i = 0; i < items.count; i++) {
+        NSString *identifier = YTMinimalUIPivotIdentifier(items[i]);
+        if ([identifier isEqualToString:kSubscriptionsPivot]) return;
+        if ([identifier isEqualToString:kYouPivot]) youIndex = i;
+        if ([identifier isEqualToString:kHomePivot]
+            && [[[items[i] pivotBarIconOnlyItemRenderer] pivotIdentifier] isEqualToString:kHomePivot])
+            home = items[i];
+    }
+    if (!home) return;
+
+    YTIPivotBarSupportedRenderers *item = [home copy];
+    YTIPivotBarIconOnlyItemRenderer *renderer = [item pivotBarIconOnlyItemRenderer];
+    YTICommand *endpoint = [%c(YTICommand) browseNavigationEndpointWithBrowseID:kSubscriptionsPivot];
+    if (!renderer || !endpoint) return;
+
+    renderer.pivotIdentifier = kSubscriptionsPivot;
+    if ([renderer respondsToSelector:@selector(setTargetId:)]) renderer.targetId = @"pivot-subs";
+    if ([renderer respondsToSelector:@selector(setNavigationEndpoint:)]) renderer.navigationEndpoint = endpoint;
+    // Home's tracking params would log taps on this tab as Home.
+    if ([renderer respondsToSelector:@selector(setTrackingParams:)]) renderer.trackingParams = nil;
+    if ([renderer respondsToSelector:@selector(setHasThumbnail:)]) renderer.hasThumbnail = NO;
+    renderer.icon.iconType = YT_TAB_SUBSCRIPTIONS_CAIRO;
+    if ([renderer respondsToSelector:@selector(accessibility)])
+        renderer.accessibility.accessibilityData.label = YTMLOC(@"TAB_SUBSCRIPTIONS");
+
+    // Old order: Home, Shorts, Create, Subscriptions, You.
+    [items insertObject:item atIndex:youIndex == NSNotFound ? items.count : youIndex];
+}
+
+// Drops the hidden tabs from the renderer in place, after putting a missing
+// Subscriptions tab back. Running it twice on the same renderer is harmless.
 static void YTMinimalUIFilterPivotBarRenderer(YTIPivotBarRenderer *renderer) {
     NSMutableArray <YTIPivotBarSupportedRenderers *> *items = [renderer itemsArray];
+    if (YTMinimalUIBool(kShowSubscriptionsTab, YES)) YTMinimalUIInsertSubscriptionsTab(items);
     NSMutableIndexSet *indicesToRemove = [NSMutableIndexSet indexSet];
 
     for (NSUInteger i = 0; i < items.count; i++) {
-        YTIPivotBarSupportedRenderers *item = items[i];
-        NSString *identifier = [[item pivotBarItemRenderer] pivotIdentifier];
-        NSString *iconOnlyIdentifier = [[item pivotBarIconOnlyItemRenderer] pivotIdentifier];
+        NSString *identifier = YTMinimalUIPivotIdentifier(items[i]);
 
         if ([identifier isEqualToString:kHomePivot] && !YTMinimalUIBool(kShowHomeTab, YES))
             [indicesToRemove addIndex:i];
@@ -34,7 +79,7 @@ static void YTMinimalUIFilterPivotBarRenderer(YTIPivotBarRenderer *renderer) {
             [indicesToRemove addIndex:i];
         else if ([identifier isEqualToString:kSubscriptionsPivot] && !YTMinimalUIBool(kShowSubscriptionsTab, YES))
             [indicesToRemove addIndex:i];
-        else if ([iconOnlyIdentifier isEqualToString:kCreatePivot] && !YTMinimalUIBool(kShowCreateButton, YES))
+        else if ([identifier isEqualToString:kCreatePivot] && !YTMinimalUIBool(kShowCreateButton, YES))
             [indicesToRemove addIndex:i];
     }
 
