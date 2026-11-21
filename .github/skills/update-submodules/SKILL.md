@@ -85,14 +85,29 @@ stop being able to fetch it.
    `SponsorBlockSettingsController`). A rename upstream leaves a settings row
    that silently does nothing — diff the bumped submodules for those names.
 
-6. Build from clean and confirm every dylib is in the deb:
+6. Check the pinned build tools in `scripts/versions.env` (Theos commit and
+   cyan release tag), which CI builds with:
+
+   ```bash
+   git ls-remote https://github.com/theos/theos.git HEAD
+   git ls-remote --tags https://github.com/asdfzxcvbn/pyzule-rw.git | tail -3
+   ```
+
+   If either moved, ask the user whether to bump it. To bump, move the local
+   copy to the new version first — `git -C ~/theos checkout <sha> && git -C
+   ~/theos submodule update --init --recursive`, and `pipx install --force
+   https://github.com/asdfzxcvbn/pyzule-rw/archive/refs/tags/<tag>.zip` —
+   then edit `scripts/versions.env`, so the build below runs on the same tools
+   CI will. Commit `scripts/versions.env` separately from the submodule bumps.
+
+7. Build from clean and confirm every dylib is in the deb:
 
    ```bash
    ./scripts/build.sh clean package
    dpkg-deb -c packages/*.deb | grep '\.dylib$'
    ```
 
-7. Show the result and commit only the submodule pointers:
+8. Show the result and commit only the submodule pointers:
 
    ```bash
    git submodule status

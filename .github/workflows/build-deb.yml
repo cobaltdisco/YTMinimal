@@ -71,17 +71,25 @@ jobs:
       - name: Set PATH environment variable
         run: echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
 
-      - name: Resolve Theos revision
+      - name: Read pinned tool versions
         id: theos_rev
         run: |
-          # Theos still floats on master; the revision is resolved once so the
-          # cache key and the checkout agree, and recorded for traceability.
-          sha=$(git ls-remote https://github.com/theos/theos.git HEAD | cut -f1)
-          if [ -z "$sha" ]; then
-            echo "Error: could not resolve the Theos revision."
+          # Theos and cyan are pinned in scripts/versions.env, the same file the
+          # local build scripts check against, so CI and a local build use the
+          # same tools. Read with sed rather than sourced, and validated, since
+          # both values end up in URLs and cache keys.
+          sha=$(sed -n 's/^THEOS_REF=//p' scripts/versions.env)
+          cyan=$(sed -n 's/^CYAN_REF=//p' scripts/versions.env)
+          if ! [[ "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Error: THEOS_REF in scripts/versions.env must be a full commit SHA."
+            exit 1
+          fi
+          if ! [[ "$cyan" =~ ^v[0-9][0-9A-Za-z.-]*$ ]]; then
+            echo "Error: CYAN_REF in scripts/versions.env must be a pyzule-rw release tag."
             exit 1
           fi
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "cyan=$cyan" >> "$GITHUB_OUTPUT"
           echo "Theos: \`$sha\`" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Cache Theos

@@ -32,7 +32,7 @@ were not written against.
 | `Tweaks/YTMinimalUI` | **Our own interface tweaks** — new features go here |
 | `Headers/YouTubeHeader` | PoomSmart's YouTube class headers (on the include path) |
 | `Extensions/OpenYouTubeSafariExtension` | Prebuilt `.appex` injected alongside the deb |
-| `scripts/` | Local build wrappers, mirroring the GitHub Actions workflows |
+| `scripts/` | Local build wrappers, mirroring the GitHub Actions workflows; `versions.env` pins Theos and cyan for both |
 | `.github/workflows/` | `build-deb.yml` and `build-ipa.yml`, both `workflow_dispatch` |
 
 ## Building locally
@@ -47,6 +47,16 @@ were not written against.
 A full build takes well under a minute. Requirements, all already installed on
 this machine: Theos at `~/theos`, `iPhoneOS16.5.sdk` in `~/theos/sdks`, Homebrew
 `make` / `ldid` / `dpkg`, and `cyan` (pyzule-rw) via pipx for the IPA step.
+
+Theos and cyan are pinned in `scripts/versions.env`, which both workflows build
+with. `scripts/env.sh` warns when `~/theos` is on another commit and
+`build-ipa.sh` when the installed cyan is another version; a build still runs,
+it just may not match CI's. Bump them deliberately, with the submodules (the
+update-submodules skill covers it), never by letting CI float.
+
+CI cannot match the local Xcode: the `macos-15` runner ships its own (not 27),
+which compiles both the tweaks and Alderis. A CI build therefore behaves the
+same as a local one but is not byte-identical.
 
 To try a build on a phone, re-sign and install it in one step:
 
@@ -290,10 +300,12 @@ is pinned. `ipa_url` is masked in the logs by the first step, which reads it
 from the event payload — keep it that way, and never interpolate `inputs.*`
 into a `run:` script; pass it through `env:`.
 
-Theos is not checked out on every run: its `master` HEAD is resolved with `git
-ls-remote`, cached under that SHA (excluding `theos/sdks`, which has its own
-cache), and written to the job summary, so a release can be traced to the Theos
-it was built with.
+Theos is not checked out on every run: the commit pinned in
+`scripts/versions.env` is cached under that SHA (excluding `theos/sdks`, which
+has its own cache) and written to the job summary, so a release can be traced
+to the Theos it was built with. cyan is installed from the release tag pinned
+there. The file is read with `sed` and both values are validated, never
+sourced.
 
 Both also attach `YTMinimal_<version>_dSYMs.zip`, the debug symbols for every
 dylib in that build — keep the one matching a release around, or a crash report

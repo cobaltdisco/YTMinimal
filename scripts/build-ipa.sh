@@ -6,8 +6,9 @@
 #   ./scripts/build-ipa.sh ~/Downloads/com.google.ios.youtube-21.32.4-Decrypted.ipa
 #   ./scripts/build-ipa.sh <ipa> ENABLE_ISPONSORBLOCK=0
 #
-# Mirrors .github/workflows/build-ipa.yml. Requires cyan (pyzule-rw):
-#   pipx install --force https://github.com/asdfzxcvbn/pyzule-rw/archive/main.zip
+# Mirrors .github/workflows/build-ipa.yml. Requires cyan (pyzule-rw), at the
+# version in scripts/versions.env:
+#   pipx install --force https://github.com/asdfzxcvbn/pyzule-rw/archive/refs/tags/<CYAN_REF>.zip
 set -euo pipefail
 cd "$(dirname "$0")/.."
 source scripts/env.sh
@@ -20,6 +21,11 @@ fi
 ipa="$1"; shift
 [ -f "$ipa" ] || { echo "error: no such IPA: $ipa" >&2; exit 1; }
 command -v cyan >/dev/null || { echo "error: cyan not on PATH — see the header of this script" >&2; exit 1; }
+cyan_version=$(cyan --version 2>/dev/null | awk '{print $NF}')
+if [ -n "$YTM_CYAN_REF" ] && [ "$cyan_version" != "$YTM_CYAN_REF" ]; then
+    echo "warning: cyan is ${cyan_version:-of unknown version}, CI injects with $YTM_CYAN_REF (scripts/versions.env)" >&2
+    echo "         to match: pipx install --force https://github.com/asdfzxcvbn/pyzule-rw/archive/refs/tags/$YTM_CYAN_REF.zip" >&2
+fi
 
 version=$(sed -n 's/^Version: //p' control | sed 's/~/-/g')
 
