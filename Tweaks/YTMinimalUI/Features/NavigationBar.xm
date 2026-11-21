@@ -1,5 +1,6 @@
 #import "../YTMinimalUI.h"
 #import "../Headers.h"
+#import <objc/runtime.h>
 
 // Hiding buttons in the top bar.
 //
@@ -47,6 +48,30 @@ static void YTMinimalUIHideSubviewWithIdentifier(UIView *container, NSString *id
 
 %end
 
+// The microphone inside the search screen, beside the text field, which the
+// top bar pass above never sees. Also from YouMod, Files/Feed.x. The
+// controller decides once, in -viewDidLoad, whether voice search is offered,
+// so the ivar is cleared right after it has been set. Written through the ivar
+// rather than KVC: setValue:forKey: throws on a missing key, and the ivar is
+// private, so on a build that renamed it the hook just does nothing.
+%group gSearchVoiceButton
+
+%hook YTSearchViewController
+
+- (void)viewDidLoad {
+    %orig;
+    if (YTMinimalUIBool(kShowVoiceSearchButton, YES)) return;
+    Ivar ivar = class_getInstanceVariable(object_getClass(self), "_isVoiceSearchAllowed");
+    const char *type = ivar ? ivar_getTypeEncoding(ivar) : NULL;
+    if (!type || (strcmp(type, @encode(BOOL)) != 0 && strcmp(type, @encode(bool)) != 0)) return;
+    *(BOOL *)((uint8_t *)(__bridge void *)self + ivar_getOffset(ivar)) = NO;
+}
+
+%end
+
+%end
+
 void YTMinimalUIInitNavigationBar(void) {
     %init(gNavigationBar);
+    if (objc_getClass("YTSearchViewController")) %init(gSearchVoiceButton);
 }

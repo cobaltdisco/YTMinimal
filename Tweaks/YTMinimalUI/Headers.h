@@ -190,3 +190,9 @@
 - (NSMutableArray <YTSettingsSectionItem *> *)ytMinimalUITweaksPageRows;
 - (void)updateYTMinimalUISectionWithEntry:(id)entry;
 @end
+
+// The shelf's own header (title, icon). Not in the submodule's YTIShelfRenderer.h;
+// present in 21.46.3, checked with -respondsToSelector: before use.
+@interface YTIShelfRenderer (YTMinimalUI)
+- (id)headerRenderer;
+@end
